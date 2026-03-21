@@ -40,6 +40,7 @@ func loadConfig() (Config, bool, error) {
 	if rawCfg != "" {
 		cfg, err := parseConfigString(rawCfg)
 		cfg.ClearAccountTokens()
+		cfg.DropInvalidAccounts()
 		return cfg, true, err
 	}
 
@@ -57,6 +58,7 @@ func loadConfig() (Config, bool, error) {
 		return Config{}, false, err
 	}
 	cfg.ClearAccountTokens()
+	cfg.DropInvalidAccounts()
 	if IsVercel() {
 		// Vercel filesystem is ephemeral/read-only for runtime writes; avoid save errors.
 		return cfg, true, nil

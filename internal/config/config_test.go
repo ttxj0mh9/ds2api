@@ -29,6 +29,27 @@ func TestLoadStoreClearsTokensFromConfigInput(t *testing.T) {
 	}
 }
 
+func TestLoadStoreDropsLegacyTokenOnlyAccounts(t *testing.T) {
+	t.Setenv("DS2API_CONFIG_JSON", `{
+		"accounts":[
+			{"token":"legacy-token-only"},
+			{"email":"u@example.com","password":"p","token":"runtime-token"}
+		]
+	}`)
+
+	store := LoadStore()
+	accounts := store.Accounts()
+	if len(accounts) != 1 {
+		t.Fatalf("expected token-only account to be dropped, got %d accounts", len(accounts))
+	}
+	if accounts[0].Identifier() != "u@example.com" {
+		t.Fatalf("unexpected remaining account: %#v", accounts[0])
+	}
+	if accounts[0].Token != "" {
+		t.Fatalf("expected persisted token to be cleared, got %q", accounts[0].Token)
+	}
+}
+
 func TestStoreUpdateAccountTokenKeepsIdentifierResolvable(t *testing.T) {
 	t.Setenv("DS2API_CONFIG_JSON", `{
 		"accounts":[{"email":"user@example.com","password":"p"}]

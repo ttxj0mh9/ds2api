@@ -35,6 +35,23 @@ func (c *Config) ClearAccountTokens() {
 	}
 }
 
+// DropInvalidAccounts removes accounts that cannot be addressed by admin APIs
+// (no email and no normalizable mobile). This prevents legacy token-only
+// records from becoming orphaned empty entries after token stripping.
+func (c *Config) DropInvalidAccounts() {
+	if c == nil || len(c.Accounts) == 0 {
+		return
+	}
+	kept := make([]Account, 0, len(c.Accounts))
+	for _, acc := range c.Accounts {
+		if acc.Identifier() == "" {
+			continue
+		}
+		kept = append(kept, acc)
+	}
+	c.Accounts = kept
+}
+
 type CompatConfig struct {
 	WideInputStrictOutput *bool `json:"wide_input_strict_output,omitempty"`
 }

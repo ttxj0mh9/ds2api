@@ -194,7 +194,7 @@ func TestPoolAccountConcurrencyAliasEnv(t *testing.T) {
 	}
 }
 
-func TestPoolSkipsTokenOnlyAccount(t *testing.T) {
+func TestPoolDropsLegacyTokenOnlyAccountOnLoad(t *testing.T) {
 	t.Setenv("DS2API_ACCOUNT_MAX_INFLIGHT", "1")
 	t.Setenv("DS2API_CONFIG_JSON", `{
 		"keys":["k1"],
@@ -203,7 +203,7 @@ func TestPoolSkipsTokenOnlyAccount(t *testing.T) {
 
 	pool := NewPool(config.LoadStore())
 	status := pool.Status()
-	if got, ok := status["total"].(int); !ok || got != 1 {
+	if got, ok := status["total"].(int); !ok || got != 0 {
 		t.Fatalf("unexpected total in pool status: %#v", status["total"])
 	}
 	if got, ok := status["available"].(int); !ok || got != 0 {

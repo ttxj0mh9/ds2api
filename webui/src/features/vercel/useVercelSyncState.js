@@ -8,7 +8,7 @@ function pollDelayMs(attempt) {
     return 60000
 }
 
-export function useVercelSyncState({ apiFetch, onMessage, t, isVercel = false, config = null }) {
+export function useVercelSyncState({ apiFetch, onMessage, t, isVercel = false }) {
     const [vercelToken, setVercelToken] = useState('')
     const [projectId, setProjectId] = useState('')
     const [teamId, setTeamId] = useState('')
@@ -20,18 +20,9 @@ export function useVercelSyncState({ apiFetch, onMessage, t, isVercel = false, c
     const [pollFailures, setPollFailures] = useState(0)
     const [nextRetryAt, setNextRetryAt] = useState(null)
 
-
-    const configOverride = config?.env_backed ? config : undefined
-
     const fetchSyncStatus = useCallback(async ({ manual = false } = {}) => {
         try {
-            const res = await apiFetch('/admin/vercel/status', configOverride ? {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    config_override: configOverride,
-                }),
-            } : undefined)
+            const res = await apiFetch('/admin/vercel/status')
             if (!res.ok) {
                 throw new Error(`status ${res.status}`)
             }
@@ -59,7 +50,7 @@ export function useVercelSyncState({ apiFetch, onMessage, t, isVercel = false, c
             // eslint-disable-next-line no-console
             console.error('Failed to fetch sync status:', e)
         }
-    }, [apiFetch, configOverride, isVercel, onMessage, t])
+    }, [apiFetch, isVercel, onMessage, t])
 
     useEffect(() => {
         const loadPreconfig = async () => {
@@ -126,7 +117,6 @@ export function useVercelSyncState({ apiFetch, onMessage, t, isVercel = false, c
                     vercel_token: tokenToUse,
                     project_id: projectId,
                     team_id: teamId || undefined,
-                    config_override: configOverride,
                 }),
             })
             const data = await res.json()
@@ -143,7 +133,7 @@ export function useVercelSyncState({ apiFetch, onMessage, t, isVercel = false, c
         } finally {
             setLoading(false)
         }
-    }, [apiFetch, configOverride, fetchSyncStatus, onMessage, preconfig?.has_token, projectId, t, teamId, vercelToken])
+    }, [apiFetch, fetchSyncStatus, onMessage, preconfig?.has_token, projectId, t, teamId, vercelToken])
 
     return {
         vercelToken,

@@ -14,16 +14,6 @@ export function useAdminConfig({ token, showMessage, t }) {
             if (res.ok) {
                 const data = await res.json()
                 if (data?.env_backed) {
-                    const rawDraft = localStorage.getItem(ENV_DRAFT_KEY)
-                    if (rawDraft) {
-                        try {
-                            const draft = JSON.parse(rawDraft)
-                            setConfig({ ...draft, env_backed: true })
-                            return
-                        } catch (_e) {
-                            localStorage.removeItem(ENV_DRAFT_KEY)
-                        }
-                    }
                     localStorage.setItem(ENV_DRAFT_KEY, JSON.stringify(data))
                 } else {
                     localStorage.removeItem(ENV_DRAFT_KEY)

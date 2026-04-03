@@ -18,6 +18,8 @@ const {
   boolDefaultTrue,
   filterIncrementalToolCallDeltasByAllowed,
   shouldSkipPath,
+  isNodeStreamSupportedPath,
+  extractPathname,
 } = handler.__test;
 
 test('chat-stream exposes parser test hooks', () => {
@@ -224,4 +226,16 @@ test('shouldSkipPath skips dynamic response/fragments/*/status paths only', () =
   assert.equal(shouldSkipPath('response/fragments/-16/status'), true);
   assert.equal(shouldSkipPath('response/fragments/8/status'), true);
   assert.equal(shouldSkipPath('response/status'), false);
+});
+
+test('node stream path guard only allows /v1/chat/completions', () => {
+  assert.equal(isNodeStreamSupportedPath('/v1/chat/completions'), true);
+  assert.equal(isNodeStreamSupportedPath('/v1/chat/completions?x=1'), true);
+  assert.equal(isNodeStreamSupportedPath('/v1beta/models/gemini-2.5-flash:streamGenerateContent'), false);
+  assert.equal(isNodeStreamSupportedPath('/anthropic/v1/messages'), false);
+});
+
+test('extractPathname strips query only', () => {
+  assert.equal(extractPathname('/v1/chat/completions?stream=true'), '/v1/chat/completions');
+  assert.equal(extractPathname('/v1beta/models/gemini-2.5-flash:streamGenerateContent?key=1'), '/v1beta/models/gemini-2.5-flash:streamGenerateContent');
 });

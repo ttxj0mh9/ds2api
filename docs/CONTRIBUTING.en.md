@@ -59,7 +59,7 @@ docker-compose -f docker-compose.dev.yml up
 
 | Language | Standards |
 | --- | --- |
-| **Go** | Run `gofmt` and ensure `go test ./...` passes before committing |
+| **Go** | Run `./scripts/lint.sh` (gofmt + golangci-lint) and ensure `go test ./...` passes before committing |
 | **JavaScript/React** | Follow existing project style (functional components) |
 | **Commit messages** | Use semantic prefixes: `feat:`, `fix:`, `docs:`, `refactor:`, `style:`, `perf:`, `chore:` |
 

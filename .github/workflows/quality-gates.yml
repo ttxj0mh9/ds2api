@@ -28,6 +28,16 @@ jobs:
           cache: "npm"
           cache-dependency-path: webui/package-lock.json
 
+      - name: Setup golangci-lint
+        uses: golangci/golangci-lint-action@v8
+        with:
+          version: v2.11.4
+          install-mode: binary
+          verify: true
+
+      - name: Go Format & Lint Gates
+        run: ./scripts/lint.sh
+
       - name: Refactor Line Gate
         run: ./tests/scripts/check-refactor-line-gate.sh
 

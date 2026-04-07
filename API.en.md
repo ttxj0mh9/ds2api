@@ -267,6 +267,7 @@ data: [DONE]
 - `deepseek-reasoner` / `deepseek-reasoner-search` models emit `delta.reasoning_content`
 - Text emits `delta.content`
 - Last chunk includes `finish_reason` and `usage`
+- Token counting prefers pass-through from upstream DeepSeek SSE (`accumulated_token_usage` / `token_usage`), and only falls back to local estimation when upstream usage is absent
 
 #### Tool Calls
 
@@ -383,6 +384,7 @@ Business auth required. Returns OpenAI-compatible embeddings shape.
 ## Claude-Compatible API
 
 Besides `/anthropic/v1/*`, DS2API also supports shortcut paths: `/v1/messages`, `/messages`, `/v1/messages/count_tokens`, `/messages/count_tokens`.
+Implementation-wise this path is unified on the OpenAI Chat Completions parse-and-translate pipeline to avoid maintaining divergent parsing chains.
 
 ### `GET /anthropic/v1/models`
 
@@ -517,6 +519,7 @@ Supported paths:
 - `/v1/models/{model}:streamGenerateContent` (compat path)
 
 Authentication is the same as other business routes (`Authorization: Bearer <token>` or `x-api-key`).
+Implementation-wise this path is unified on the OpenAI Chat Completions parse-and-translate pipeline to avoid maintaining divergent parsing chains.
 
 ### `POST /v1beta/models/{model}:generateContent`
 
@@ -535,6 +538,7 @@ Returns SSE (`text/event-stream`), each chunk as `data: <json>`:
 - regular text: incremental text chunks
 - `tools` mode: buffered and emitted as `functionCall` at finalize phase
 - final chunk: includes `finishReason: "STOP"` and `usageMetadata`
+- Token counting prefers pass-through from upstream DeepSeek SSE (`accumulated_token_usage` / `token_usage`), and only falls back to local estimation when upstream usage is absent
 
 ---
 

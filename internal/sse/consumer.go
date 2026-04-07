@@ -12,6 +12,7 @@ import (
 type CollectResult struct {
 	Text          string
 	Thinking      string
+	PromptTokens  int
 	OutputTokens  int
 	ContentFilter bool
 }
@@ -28,6 +29,7 @@ func CollectStream(resp *http.Response, thinkingEnabled bool, closeBody bool) Co
 	}
 	text := strings.Builder{}
 	thinking := strings.Builder{}
+	promptTokens := 0
 	outputTokens := 0
 	contentFilter := false
 	currentType := "text"
@@ -40,17 +42,17 @@ func CollectStream(resp *http.Response, thinkingEnabled bool, closeBody bool) Co
 		if !result.Parsed {
 			return true
 		}
+		if result.PromptTokens > 0 {
+			promptTokens = result.PromptTokens
+		}
+		if result.OutputTokens > 0 {
+			outputTokens = result.OutputTokens
+		}
 		if result.Stop {
 			if result.ContentFilter {
 				contentFilter = true
 			}
-			if result.OutputTokens > 0 {
-				outputTokens = result.OutputTokens
-			}
 			return false
-		}
-		if result.OutputTokens > 0 {
-			outputTokens = result.OutputTokens
 		}
 		for _, p := range result.Parts {
 			if p.Type == "thinking" {
@@ -66,6 +68,7 @@ func CollectStream(resp *http.Response, thinkingEnabled bool, closeBody bool) Co
 	return CollectResult{
 		Text:          text.String(),
 		Thinking:      thinking.String(),
+		PromptTokens:  promptTokens,
 		OutputTokens:  outputTokens,
 		ContentFilter: contentFilter,
 	}

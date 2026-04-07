@@ -1,15 +1,17 @@
 'use strict';
 
-function buildUsage(prompt, thinking, output, outputTokens = 0) {
-  const promptTokens = estimateTokens(prompt);
+function buildUsage(prompt, thinking, output, outputTokens = 0, providedPromptTokens = 0) {
   const reasoningTokens = estimateTokens(thinking);
   const completionTokens = estimateTokens(output);
+
+  const finalPromptTokens = Number.isFinite(providedPromptTokens) && providedPromptTokens > 0 ? Math.trunc(providedPromptTokens) : estimateTokens(prompt);
+
   const overriddenCompletionTokens = Number.isFinite(outputTokens) && outputTokens > 0 ? Math.trunc(outputTokens) : 0;
   const finalCompletionTokens = overriddenCompletionTokens > 0 ? overriddenCompletionTokens : reasoningTokens + completionTokens;
   return {
-    prompt_tokens: promptTokens,
+    prompt_tokens: finalPromptTokens,
     completion_tokens: finalCompletionTokens,
-    total_tokens: promptTokens + finalCompletionTokens,
+    total_tokens: finalPromptTokens + finalCompletionTokens,
     completion_tokens_details: {
       reasoning_tokens: reasoningTokens,
     },

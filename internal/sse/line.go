@@ -10,6 +10,7 @@ type LineResult struct {
 	ErrorMessage  string
 	Parts         []ContentPart
 	NextType      string
+	PromptTokens  int
 	OutputTokens  int
 }
 
@@ -20,9 +21,9 @@ func ParseDeepSeekContentLine(raw []byte, thinkingEnabled bool, currentType stri
 	if !parsed {
 		return LineResult{NextType: currentType}
 	}
-	outputTokens := extractAccumulatedTokenUsage(chunk)
+	promptTokens, outputTokens := extractAccumulatedTokenUsage(chunk)
 	if done {
-		return LineResult{Parsed: true, Stop: true, NextType: currentType, OutputTokens: outputTokens}
+		return LineResult{Parsed: true, Stop: true, NextType: currentType, PromptTokens: promptTokens, OutputTokens: outputTokens}
 	}
 	if errObj, hasErr := chunk["error"]; hasErr {
 		return LineResult{
@@ -30,6 +31,7 @@ func ParseDeepSeekContentLine(raw []byte, thinkingEnabled bool, currentType stri
 			Stop:         true,
 			ErrorMessage: fmt.Sprintf("%v", errObj),
 			NextType:     currentType,
+			PromptTokens: promptTokens,
 			OutputTokens: outputTokens,
 		}
 	}
@@ -39,6 +41,7 @@ func ParseDeepSeekContentLine(raw []byte, thinkingEnabled bool, currentType stri
 			Stop:          true,
 			ContentFilter: true,
 			NextType:      currentType,
+			PromptTokens:  promptTokens,
 			OutputTokens:  outputTokens,
 		}
 	}
@@ -48,6 +51,7 @@ func ParseDeepSeekContentLine(raw []byte, thinkingEnabled bool, currentType stri
 			Stop:          true,
 			ContentFilter: true,
 			NextType:      currentType,
+			PromptTokens:  promptTokens,
 			OutputTokens:  outputTokens,
 		}
 	}
@@ -58,6 +62,7 @@ func ParseDeepSeekContentLine(raw []byte, thinkingEnabled bool, currentType stri
 		Stop:         finished,
 		Parts:        parts,
 		NextType:     nextType,
+		PromptTokens: promptTokens,
 		OutputTokens: outputTokens,
 	}
 }

@@ -19,7 +19,8 @@ func main() {
 		log.Println("No .env file found, using environment variables")
 	}
 
-	port := getEnv("PORT", "3000")
+	// Changed default port to 8080 since 3000 conflicts with other local services on my machine
+	port := getEnv("PORT", "8080")
 	host := getEnv("HOST", "0.0.0.0")
 
 	// Validate port is a valid number

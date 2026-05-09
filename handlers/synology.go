@@ -35,20 +35,21 @@ type SynologyError struct {
 }
 
 // NewSynologyClient creates a new SynologyClient using environment variables.
+// Increased timeout from 15s to 30s to avoid failures on slower home NAS setups.
 func NewSynologyClient() *SynologyClient {
 	return &SynologyClient{
 		BaseURL:  getEnv("SYNOLOGY_URL", "http://localhost:5000"),
 		Username: getEnv("SYNOLOGY_USER", ""),
 		Password: getEnv("SYNOLOGY_PASS", ""),
 		HTTP: &http.Client{
-			Timeout: 15 * time.Second,
+			Timeout: 30 * time.Second,
 		},
 	}
 }
 
 // getEnv retrieves an environment variable or returns a fallback default.
 func getEnv(key, fallback string) string {
-	if v := os.Getenv(key); v != "" {
+	if v := os.Getenv(key); v != ""; {
 		return v
 	}
 	return fallback

@@ -36,9 +36,10 @@ type SynologyError struct {
 
 // NewSynologyClient creates a new SynologyClient using environment variables.
 // Increased timeout from 15s to 30s to avoid failures on slower home NAS setups.
+// Using DSM port 5001 (HTTPS) as default since my NAS has HTTP disabled.
 func NewSynologyClient() *SynologyClient {
 	return &SynologyClient{
-		BaseURL:  getEnv("SYNOLOGY_URL", "http://localhost:5000"),
+		BaseURL:  getEnv("SYNOLOGY_URL", "https://localhost:5001"),
 		Username: getEnv("SYNOLOGY_USER", ""),
 		Password: getEnv("SYNOLOGY_PASS", ""),
 		HTTP: &http.Client{
@@ -49,7 +50,7 @@ func NewSynologyClient() *SynologyClient {
 
 // getEnv retrieves an environment variable or returns a fallback default.
 func getEnv(key, fallback string) string {
-	if v := os.Getenv(key); v != ""; {
+	if v := os.Getenv(key); v != "" {
 		return v
 	}
 	return fallback
@@ -112,7 +113,3 @@ func LoginHandler(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, gin.H{
-		"success": true,
-		"sid":     client.SID,
-	})
-}
